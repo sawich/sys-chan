@@ -19,5 +19,9 @@
   "bugs": {
     "url": "https://github.com/sawich/sys-chan/issues"
   },
-  "homepage": "https://github.com/sawich/sys-chan#readme"
+  "homepage": "https://github.com/sawich/sys-chan#readme",
+  "dependencies": {
+    "discord.js": "^11.1.0",
+    "ssh2": "^0.5.5"
+  }
 }
