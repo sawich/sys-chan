@@ -7,7 +7,8 @@ const fs = require ('fs');
 const config = require ('./config.json');
 var ssh_client = require ('ssh2').Client;
 
-var ssh_connection = new ssh_client ();
+let ssh_connection = new ssh_client ();
+let ssh_shell_connection = null;
 
 const bot = new discord.Client ();
 bot.login (config['bot_token']);
@@ -25,12 +26,37 @@ const main_commands = {
             stream.on ('data', data => bot_message (msg, data.toString ()))
             .stderr.on ('data', data => bot_message_error (msg, data.toString ()));
         });
+    },    
+    'end_shell' : msg => {
+        ssh_shell_connection.end ('exit\n');
+    },
+    'start_shell' : (msg, params) => {
+        ssh_connection.shell((err, stream) => {
+            if (err) { console.log (err); return; }
+
+            ssh_shell_connection = stream;
+
+            stream.on ('close', () => {
+                ssh_shell_connection.end();
+            }).on ('data', data => {
+                msg.reply ('\n`' + data.toString () + '`');
+            }).on ('error',  err => console.log (err))
+            .stderr.on ('data', data => {
+                bot_message_error (msg, data.toString ());                
+            });
+        });
     }
 };
 
 bot.on ('message', msg => {
-    if (msg.member.id != 206789210009632768 || msg.author.bot || !msg.content.startsWith ('sys')) { return; }
-    
+    if (msg.member.id != 206789210009632768 || msg.author.bot) { return; }
+
+    if (ssh_shell_connection && msg.content.length) {        
+        ssh_shell_connection.write (msg.content + '\n');
+    }
+
+    if (!msg.content.startsWith ('sys')) { return; }
+
     const params = msg.content.replace ('sys', '').trim ();
 
     if (!excecute_cmd (msg, main_commands, params)) {
@@ -39,7 +65,7 @@ bot.on ('message', msg => {
 });
 
 
-ssh_connection.on ('error', err => console.log (err)).connect ({
+ssh_connection.on ('ready', () => {}).on ('error', err => console.log (err)).connect ({
     host: config['ssh']['host'],
     port: config['ssh']['port'],
     username: config['ssh']['user'],
