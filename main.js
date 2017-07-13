@@ -1,3 +1,6 @@
+const color_message = 0x3498db;
+const color_message_error = 0xdb3434;
+
 
 const discord = require ("discord.js");
 const fs = require ('fs');
@@ -9,9 +12,8 @@ var ssh_connection = new ssh_client ();
 const bot = new discord.Client ();
 bot.login (config['bot_token']);
 
-bot.on ('ready', () => {
-    console.log (`Logged in as ${bot.user.tag}!`);
-});
+bot.on ('ready', () => console.log (`Logged in as ${bot.user.tag}!`));
+
 
 const main_commands = {
     'exec' : (msg, params) => {
@@ -20,25 +22,8 @@ const main_commands = {
         ssh_connection.exec (params, (err, stream) => {
             if (err) { console.log (err); return; }
             
-            stream.on ('data', function (data) {
-                msg.reply ('', { embed: {
-                    color: 0x3498db,
-                    author: {
-                        name: bot.user.username,
-                        icon_url: bot.user.avatarURL
-                    },
-                    description: data.toString ()
-                }});
-            }).stderr.on ('data', function (data) {
-                msg.reply ('', { embed: {
-                    color: 0xdb3434,
-                    author: {
-                        name: bot.user.username,
-                        icon_url: bot.user.avatarURL
-                    },
-                    description: data.toString ()
-                }});
-            });
+            stream.on ('data', data => bot_message (msg, data.toString ()))
+            .stderr.on ('data', data => bot_message_error (msg, data.toString ()));
         });
     }
 };
@@ -60,6 +45,26 @@ ssh_connection.on ('error', err => console.log (err)).connect ({
     username: config['ssh']['user'],
     privateKey: fs.readFileSync (config['ssh']['key'])
 });
+
+bot_message = (msg, text) =>
+    msg.reply ('', { embed: {
+        color: color_message,
+        author: {
+            name: bot.user.username,
+            icon_url: bot.user.avatarURL
+        },
+        description: text
+    }});
+
+bot_message_error = (msg, text) =>
+    msg.reply ('', { embed: {
+        color: color_message_error,
+        author: {
+            name: bot.user.username,
+            icon_url: bot.user.avatarURL
+        },
+        description: text
+    }});
 
 excecute_cmd = (msg, commands, params) => {
     const run_cmd = params.match (/^[\S]+/i);
