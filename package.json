@@ -22,6 +22,7 @@
   "homepage": "https://github.com/sawich/sys-chan#readme",
   "dependencies": {
     "discord.js": "^11.1.0",
+    "fs": "0.0.1-security",
     "ssh2": "^0.5.5"
   }
 }

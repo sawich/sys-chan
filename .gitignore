@@ -64,4 +64,4 @@ typings/
 !.vscode/extensions.json
 
 #bot configs
-configs/*
+config.json
