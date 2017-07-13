@@ -1,0 +1,23 @@
+{
+  "name": "sys-chan",
+  "version": "1.0.0",
+  "description": "бот для управления сервером через ssh",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sawich/sys-chan.git"
+  },
+  "keywords": [
+    "ssh",
+    "discord"
+  ],
+  "author": "sawich",
+  "license": "LGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/sawich/sys-chan/issues"
+  },
+  "homepage": "https://github.com/sawich/sys-chan#readme"
+}
